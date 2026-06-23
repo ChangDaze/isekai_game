@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Isekai Adventure</title>
+    <style>
+      /* The View Layer (CSS) */
+      body {
+        background-color: #111;
+        color: #eee;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        margin: 0;
+      }
+      #game-container {
+        background-color: #222;
+        max-width: 800px;
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+      }
+      #scene-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-bottom: 2px solid #444;
+      }
+      #text-container {
+        padding: 20px;
+        font-size: 1.1em;
+        line-height: 1.6;
+        min-height: 120px;
+      }
+      #choices-container {
+        padding: 0 20px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-align: left;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <img id="scene-image" src="" alt="Scene Visual" />
+      <div id="text-container">Loading...</div>
+      <div id="choices-container"></div>
+    </div>
+
+    <script>
+      // 1. Paste your JSON array here!
+      const storyData = [
+        {
+          id: "start",
+          sceneText:
+            "You awake in mid-air, slamming hard into a bed of jagged, glowing crystals. This isn't a grand throne room—it's a magical disposal chute. The air reeks of volatile mana and ozone. Above you, the cavern ceiling groans, and a massive petrified boulder dislodges, plummeting directly toward your head. At the same time, a strange, instinctual energy begins to pulse hotly in your hands.",
+          imagePrompt:
+            "Anime style, high fantasy action. First-person view looking up from the ground in a dark, subterranean cavern glowing with jagged purple crystals. A massive, jagged boulder is falling directly toward the camera. Debris and glowing dust float in the air.",
+          choices: [
+            {
+              text: "Focus the strange energy to repel the rock (Use Kinetic Inversion).",
+              nextId: "invert_boulder",
+            },
+            {
+              text: "Roll desperately out of the way into an adjacent ravine.",
+              nextId: "dive_away",
+            },
+          ],
+        },
+        {
+          id: "invert_boulder",
+          sceneText:
+            "You thrust your hands upward. A shockwave warps the air! The boulder's momentum violently snaps in reverse, shooting back into the ceiling with a deafening crash. Sunlight bleeds through the newly created hole. But the noise has awakened something. A mechanical roar shakes the cavern, and a hound made of black glass—the Obsidian Vanguard—steps from the shadows, its red core locking onto you.",
+          imagePrompt:
+            "Anime style, epic fantasy. A dark subterranean cavern illuminated by a dramatic shaft of sunlight from a shattered ceiling. In the shadows below, a terrifying, massive robotic hound made of glossy black obsidian with a glowing red core prepares to pounce.",
+          choices: [
+            {
+              text: "Scramble up the falling debris toward the sunlight.",
+              nextId: "climb_shaft",
+            },
+            {
+              text: "Hold your ground and prepare to fight the beast.",
+              nextId: "hide_shadows",
+            },
+          ],
+        },
+        {
+          id: "dive_away",
+          sceneText:
+            "You tuck and roll, skinning your knees on petrified roots as the boulder obliterates the ground where you just lay. You're trapped in a narrow, dead-end ravine. The dust settles, revealing heavy, metallic footsteps. The Obsidian Vanguard rounds the corner, its faceless glass snout tracking the rapid, otherworldly thumping of your heart.",
+          imagePrompt:
+            "Anime style, tense thriller. A claustrophobic, narrow canyon of petrified wood and dark crystals. A terrifying mechanical hound made of black glass is slowly stalking around the corner, its red inner light illuminating the dust.",
+          choices: [
+            {
+              text: "Use Kinetic Inversion on the floating dust to blind it, then reposition.",
+              nextId: "hide_shadows",
+            },
+            {
+              text: "Charge the beast with a jagged crystal shard.",
+              nextId: "game_over",
+            },
+          ],
+        },
+        {
+          id: "climb_shaft",
+          sceneText:
+            "You leap onto the shifting rubble, climbing desperately toward the surface. The Vanguard lunges, its black glass jaws snapping inches from your ankles. You can feel the intense heat of its mana core. It gathers kinetic energy into its hind legs for a final, lethal pounce that will skewer you against the cavern wall.",
+          imagePrompt:
+            "Anime style, dynamic action shot. Low angle looking up at a protagonist scrambling up a steep pile of glowing rubble toward a beam of daylight. Directly behind them, a massive obsidian hound is mid-leap, jaws open, glowing with intense red magical energy.",
+          choices: [
+            {
+              text: "Invert its upward momentum to slam it violently into the floor!",
+              nextId: "victory",
+            },
+            {
+              text: "Try to kick a loose boulder down into its jaws.",
+              nextId: "game_over",
+            },
+          ],
+        },
+        {
+          id: "hide_shadows",
+          sceneText:
+            "You face the beast head-on. The Vanguard doesn't hesitate—it launches itself at you like a ballistic missile, front claws extended to impale you. Time seems to slow down as its immense weight bears down on your position. This is the moment to test the absolute limits of your strange new power.",
+          imagePrompt:
+            "Anime style, high-stakes combat. A dramatic, slow-motion shot of a massive black glass mechanical hound lunging forward with razor-sharp claws extended. The protagonist stands in the foreground, hands raised, glowing with a fierce blue, space-warping kinetic energy.",
+          choices: [
+            {
+              text: "Invert the beast's kinetic force, turning its own attack inward!",
+              nextId: "victory",
+            },
+            {
+              text: "Attempt to dodge at the very last second.",
+              nextId: "game_over",
+            },
+          ],
+        },
+      ];
+
+      // 2. Convert Array to Dictionary for O(1) lookups
+      const storyNodes = {};
+      storyData.forEach((node) => {
+        storyNodes[node.id] = node;
+      });
+
+      // 3. UI Element References
+      const imageEl = document.getElementById("scene-image");
+      const textEl = document.getElementById("text-container");
+      const choicesEl = document.getElementById("choices-container");
+
+      // 4. The Core Game Loop
+      function renderScene(nodeId) {
+        // Handle Endings gracefully
+        if (nodeId === "game_over") {
+          showEnding("Game Over! The Obsidian Vanguard got you.", false);
+          return;
+        }
+        if (nodeId === "victory") {
+          showEnding("Victory! You survived the cavern.", true);
+          return;
+        }
+
+        // Fetch current state
+        const node = storyNodes[nodeId];
+
+        // Update View
+        imageEl.src = `assets/${node.id}.png`;
+        textEl.innerText = node.sceneText;
+
+        // Clear old buttons
+        choicesEl.innerHTML = "";
+
+        // Generate new buttons
+        node.choices.forEach((choice) => {
+          const btn = document.createElement("button");
+          btn.innerText = choice.text;
+          // Attach the event listener to transition state
+          btn.onclick = () => renderScene(choice.nextId);
+          choicesEl.appendChild(btn);
+        });
+      }
+
+      // Helper function for dead-ends
+      function showEnding(message, isVictory) {
+        imageEl.src = ""; // Clear image or set to a specific ending image
+        textEl.innerText = message;
+        choicesEl.innerHTML = "";
+
+        const restartBtn = document.createElement("button");
+        restartBtn.innerText = "Restart Adventure";
+        restartBtn.style.backgroundColor = isVictory ? "#4CAF50" : "#d32f2f";
+        restartBtn.onclick = () => renderScene("start");
+        choicesEl.appendChild(restartBtn);
+      }
+
+      // 5. Initialize Game
+      renderScene("start");
+    </script>
+  </body>
+</html>

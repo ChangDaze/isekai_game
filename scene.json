@@ -1,0 +1,77 @@
+[
+  {
+    "id": "start",
+    "sceneText": "You awake in mid-air, slamming hard into a bed of jagged, glowing crystals. This isn't a grand throne room—it's a magical disposal chute. The air reeks of volatile mana and ozone. Above you, the cavern ceiling groans, and a massive petrified boulder dislodges, plummeting directly toward your head. At the same time, a strange, instinctual energy begins to pulse hotly in your hands.",
+    "imagePrompt": "Anime style, high fantasy action. First-person view looking up from the ground in a dark, subterranean cavern glowing with jagged purple crystals. A massive, jagged boulder is falling directly toward the camera. Debris and glowing dust float in the air.",
+    "choices": [
+      {
+        "text": "Focus the strange energy to repel the rock (Use Kinetic Inversion).",
+        "nextId": "invert_boulder"
+      },
+      {
+        "text": "Roll desperately out of the way into an adjacent ravine.",
+        "nextId": "dive_away"
+      }
+    ]
+  },
+  {
+    "id": "invert_boulder",
+    "sceneText": "You thrust your hands upward. A shockwave warps the air! The boulder's momentum violently snaps in reverse, shooting back into the ceiling with a deafening crash. Sunlight bleeds through the newly created hole. But the noise has awakened something. A mechanical roar shakes the cavern, and a hound made of black glass—the Obsidian Vanguard—steps from the shadows, its red core locking onto you.",
+    "imagePrompt": "Anime style, epic fantasy. A dark subterranean cavern illuminated by a dramatic shaft of sunlight from a shattered ceiling. In the shadows below, a terrifying, massive robotic hound made of glossy black obsidian with a glowing red core prepares to pounce.",
+    "choices": [
+      {
+        "text": "Scramble up the falling debris toward the sunlight.",
+        "nextId": "climb_shaft"
+      },
+      {
+        "text": "Hold your ground and prepare to fight the beast.",
+        "nextId": "hide_shadows"
+      }
+    ]
+  },
+  {
+    "id": "dive_away",
+    "sceneText": "You tuck and roll, skinning your knees on petrified roots as the boulder obliterates the ground where you just lay. You're trapped in a narrow, dead-end ravine. The dust settles, revealing heavy, metallic footsteps. The Obsidian Vanguard rounds the corner, its faceless glass snout tracking the rapid, otherworldly thumping of your heart.",
+    "imagePrompt": "Anime style, tense thriller. A claustrophobic, narrow canyon of petrified wood and dark crystals. A terrifying mechanical hound made of black glass is slowly stalking around the corner, its red inner light illuminating the dust.",
+    "choices": [
+      {
+        "text": "Use Kinetic Inversion on the floating dust to blind it, then reposition.",
+        "nextId": "hide_shadows"
+      },
+      {
+        "text": "Charge the beast with a jagged crystal shard.",
+        "nextId": "game_over"
+      }
+    ]
+  },
+  {
+    "id": "climb_shaft",
+    "sceneText": "You leap onto the shifting rubble, climbing desperately toward the surface. The Vanguard lunges, its black glass jaws snapping inches from your ankles. You can feel the intense heat of its mana core. It gathers kinetic energy into its hind legs for a final, lethal pounce that will skewer you against the cavern wall.",
+    "imagePrompt": "Anime style, dynamic action shot. Low angle looking up at a protagonist scrambling up a steep pile of glowing rubble toward a beam of daylight. Directly behind them, a massive obsidian hound is mid-leap, jaws open, glowing with intense red magical energy.",
+    "choices": [
+      {
+        "text": "Invert its upward momentum to slam it violently into the floor!",
+        "nextId": "victory"
+      },
+      {
+        "text": "Try to kick a loose boulder down into its jaws.",
+        "nextId": "game_over"
+      }
+    ]
+  },
+  {
+    "id": "hide_shadows",
+    "sceneText": "You face the beast head-on. The Vanguard doesn't hesitate—it launches itself at you like a ballistic missile, front claws extended to impale you. Time seems to slow down as its immense weight bears down on your position. This is the moment to test the absolute limits of your strange new power.",
+    "imagePrompt": "Anime style, high-stakes combat. A dramatic, slow-motion shot of a massive black glass mechanical hound lunging forward with razor-sharp claws extended. The protagonist stands in the foreground, hands raised, glowing with a fierce blue, space-warping kinetic energy.",
+    "choices": [
+      {
+        "text": "Invert the beast's kinetic force, turning its own attack inward!",
+        "nextId": "victory"
+      },
+      {
+        "text": "Attempt to dodge at the very last second.",
+        "nextId": "game_over"
+      }
+    ]
+  }
+]
