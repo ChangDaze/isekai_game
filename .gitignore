@@ -1,1 +1,6 @@
 .vscode/
+
+# Safety net: keep oversized source PNGs out of the repo.
+# The game loads compressed .webp assets instead.
+*.png
+gemini-code-*.json

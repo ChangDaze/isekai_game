@@ -181,7 +181,8 @@
         const node = storyNodes[nodeId];
 
         // Update View
-        imageEl.src = `assets/${node.id}.png`;
+        imageEl.style.display = "block"; // ensure image is visible for normal scenes
+        imageEl.src = `assets/${node.id}.webp`;
         textEl.innerText = node.sceneText;
 
         // Clear old buttons
@@ -199,7 +200,7 @@
 
       // Helper function for dead-ends
       function showEnding(message, isVictory) {
-        imageEl.src = ""; // Clear image or set to a specific ending image
+        imageEl.style.display = "none"; // hide image (avoids broken-image icon)
         textEl.innerText = message;
         choicesEl.innerHTML = "";
 
