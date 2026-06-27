@@ -22,6 +22,20 @@
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        /* Perspective gives the page-flip its 3D depth. */
+        perspective: 1600px;
+      }
+      /* The "page" is everything that swaps on a scene change.
+         We flip it around its left edge, like turning a page in a book. */
+      #page {
+        transform-origin: left center;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+        transition: transform 0.35s ease-in, opacity 0.35s ease-in;
+      }
+      #page.turning {
+        transform: rotateY(-105deg);
+        opacity: 0.2;
       }
       #scene-image {
         width: 100%;
@@ -73,14 +87,102 @@
       #mute-btn:hover {
         background-color: rgba(0, 0, 0, 0.8);
       }
+
+      /* Cover / title screen: full-bleed art with a darkened overlay
+         so the title and buttons stay readable on top of it. */
+      #cover-screen {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        transition: opacity 0.5s ease;
+      }
+      /* Fades the cover out before we remove it from the layout. */
+      #cover-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* Scale the whole image to fit the viewport (minus the 20px body
+         padding top/bottom) without cropping or causing the page to scroll. */
+      #cover-img {
+        display: block;
+        max-width: 100%;
+        max-height: calc(100vh - 40px);
+        width: auto;
+        height: auto;
+      }
+      /* Text/buttons sit on top of the image. */
+      #cover-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 14px;
+        padding: 40px 20px;
+        text-align: center;
+        /* Gradient keeps the bottom dark for the title/buttons. */
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.55) 0%,
+          rgba(0, 0, 0, 0) 35%,
+          rgba(0, 0, 0, 0.85) 100%
+        );
+      }
+      #cover-title {
+        margin: 0;
+        font-size: 3em;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #fff;
+        text-shadow: 0 0 18px rgba(80, 160, 255, 0.8),
+          0 2px 6px rgba(0, 0, 0, 0.9);
+      }
+      #cover-tagline {
+        margin: 0;
+        font-size: 1.15em;
+        font-style: italic;
+        color: #cdd6e0;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      }
+      #begin-btn {
+        margin-top: 10px;
+        padding: 16px 40px;
+        font-size: 1.2em;
+        font-weight: 700;
+        text-align: center;
+        background-color: #4caf50;
+        box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+      }
+      #begin-btn:hover {
+        background-color: #45a049;
+      }
+      #cover-author {
+        margin: 0;
+        font-size: 0.9em;
+        color: #9aa3ad;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      }
     </style>
   </head>
   <body>
     <button id="mute-btn" title="Mute / unmute music">🔊</button>
     <div id="game-container">
-      <img id="scene-image" src="" alt="Scene Visual" />
-      <div id="text-container">Loading...</div>
-      <div id="choices-container"></div>
+      <!-- Cover / title screen, shown before the story begins. -->
+      <div id="cover-screen">
+        <img id="cover-img" src="assets/cover.webp" alt="Isekai Adventure cover" />
+        <div id="cover-overlay">
+          <h1 id="cover-title">Isekai Adventure</h1>
+          <p id="cover-tagline">Awaken in a world that wants you dead.</p>
+          <button id="begin-btn">Begin Adventure</button>
+          <p id="cover-author">by ChangDaze</p>
+        </div>
+      </div>
+      <div id="page">
+        <img id="scene-image" src="" alt="Scene Visual" />
+        <div id="text-container">Loading...</div>
+        <div id="choices-container"></div>
+      </div>
     </div>
 
     <script>
@@ -180,10 +282,13 @@
       });
 
       // 3. UI Element References
+      const pageEl = document.getElementById("page");
       const imageEl = document.getElementById("scene-image");
       const textEl = document.getElementById("text-container");
       const choicesEl = document.getElementById("choices-container");
       const muteBtn = document.getElementById("mute-btn");
+      const coverEl = document.getElementById("cover-screen");
+      const beginBtn = document.getElementById("begin-btn");
 
       // 3b. Background Music
       const bgm = new Audio("assets/bgm.mp3");
@@ -205,7 +310,43 @@
       };
 
       // 4. The Core Game Loop
+      // renderScene plays a page-turn, swapping the content while the page is
+      // edge-on to the viewer so the change is hidden inside the flip.
+      let isTurning = false;
       function renderScene(nodeId) {
+        // Ignore rapid clicks while a page is mid-turn.
+        if (isTurning) return;
+        isTurning = true;
+
+        pageEl.classList.add("turning");
+
+        // Swap content at the midpoint of the flip, then turn the page back in.
+        const swap = () => {
+          populateScene(nodeId);
+          // Force a reflow so removing the class animates from the flipped state.
+          void pageEl.offsetWidth;
+          pageEl.classList.remove("turning");
+        };
+
+        // Fall back to a timer in case transitionend doesn't fire.
+        let done = false;
+        const onMidpoint = () => {
+          if (done) return;
+          done = true;
+          pageEl.removeEventListener("transitionend", onMidpoint);
+          swap();
+        };
+        pageEl.addEventListener("transitionend", onMidpoint);
+        setTimeout(onMidpoint, 360);
+
+        // Release the lock once the page has fully turned back.
+        setTimeout(() => {
+          isTurning = false;
+        }, 760);
+      }
+
+      // Populates the page with a node's content (no animation).
+      function populateScene(nodeId) {
         // Handle Endings gracefully
         if (nodeId === "game_over") {
           showEnding("Game Over! The Obsidian Vanguard got you.", false);
@@ -251,7 +392,21 @@
       }
 
       // 5. Initialize Game
+      // Render the opening scene underneath the cover so it's ready, but keep
+      // the story page hidden until the player presses "Begin".
+      pageEl.style.display = "none";
       renderScene("start");
+
+      // Begin: fade the cover out first, then swap in the story page once the
+      // cover is gone so the two never overlap (no layout jump).
+      beginBtn.onclick = () => {
+        coverEl.classList.add("hidden");
+        bgm.play().catch(() => {}); // first user gesture, so autoplay is allowed
+        setTimeout(() => {
+          coverEl.style.display = "none";
+          pageEl.style.display = "block";
+        }, 500); // matches the cover fade-out transition
+      };
     </script>
   </body>
 </html>
